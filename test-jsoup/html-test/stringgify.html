@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+
+	<script type="text/javascript">
+	var srch = (function() {
+	    var instance;
+	    function SearchParam() {
+	        this.keyword = "아디다스";
+	        this.cat_srl = 0;
+	        this.sortby = "popular";
+	        this.filter = {delivery:[], price:[]};
+	        this.idx = 0;
+	        this.deal_srls = [];
+	    }
+	    return {
+	        getInstance: function() {
+	            if (instance === undefined)
+	                instance = new SearchParam();
+	            return instance;
+	        },
+	        setParam: function(obj) {
+	            for (var i in obj) {
+	                instance[i] = obj[i];
+	            }
+	        },
+	        getParam: function() {
+	            return JSON.stringify(instance);
+	        },
+	        initParam: function(arr_field) {
+	            var origin_param = new SearchParam();
+	            for (var i in arr_field) { 
+	                var field = arr_field[i];
+	                instance[field] = origin_param[field];
+	            }
+	        }
+	    }; 
+	})();
+	$(document).ready(function() {
+		srch.getInstance();
+		alert(srch.getParam());
+		$("#showTarget").text(srch.getParam());
+	});
+	</script>
+
+</head>
+<body>
+	<div>
+		<h1 id="showTarget"> show here </h1>
+	</div>
+</body>
+</html>
