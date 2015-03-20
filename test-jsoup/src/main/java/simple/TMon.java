@@ -124,7 +124,7 @@ public class TMon {
 		
 		Connection con = Jsoup.connect(url.toString());
 		loadCookiesByHost(url, con);
-		Document doc = con.data("srch", "{\"keyword\":\"아디다스\",\"cat_srl\":0,\"sortby\":\"popular\",\"filter\":{\"delivery\":[],\"price\":[]},\"idx\":0,\"deal_srls\":[]}")
+		Document doc = con.data("srch", URLEncoder.encode("{\"keyword\":\"아디다스\",\"cat_srl\":0,\"sortby\":\"popular\",\"filter\":{\"delivery\":[],\"price\":[]},\"idx\":0,\"deal_srls\":[]}", "UTF-8"))
 							.userAgent("Mozilla").timeout(3000).post(); 
 		
 		System.out.println(doc.html());

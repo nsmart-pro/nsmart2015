@@ -8,25 +8,30 @@ import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.net.ssl.HttpsURLConnection;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
- 
+
 public class TMonSearch {
  
   private List<String> cookies;
-  private HttpsURLConnection conn;
+  private HttpURLConnection conn;
  
   private final String USER_AGENT = "Mozilla/5.0";
  
   public static void main(String[] args) throws Exception {
  
-	String url = "https://accounts.google.com/ServiceLoginAuth";
-	String gmail = "https://mail.google.com/mail/";
+	String key = URLEncoder.encode("아디다스", "UTF-8");
+	String url_outer = "http://www.ticketmonster.co.kr/search/?keyword="+key+"&keyword_view="+key+"&uis=03d5e0a6&sarea=g&st=0";
+	String url_inner = "http://www.ticketmonster.co.kr/search/getDealsContents";
+	//String gmail = "https://mail.google.com/mail/";
  
 	TMonSearch http = new TMonSearch();
  
@@ -34,22 +39,23 @@ public class TMonSearch {
 	CookieHandler.setDefault(new CookieManager());
  
 	// 1. Send a "GET" request, so that you can extract the form's data.
-	String page = http.GetPageContent(url);
-	String postParams = http.getFormParams(page, "hbyoon67@gmail.com", "Zaq1xsw@");
+	String page = http.GetPageContent(url_outer);
+	
+	
  
 	// 2. Construct above post's content and then send a POST request for
-	// authentication
-	http.sendPost(url, postParams);
+	String postParams = http.getFormParams(page);
+	http.sendPost(url_inner, postParams);
  
 	// 3. success then go to gmail.
-	String result = http.GetPageContent(gmail);
-	System.out.println(result);
+	//String result = http.GetPageContent(gmail);
+	//System.out.println(result);
   }
  
   private void sendPost(String url, String postParams) throws Exception {
  
 	URL obj = new URL(url);
-	conn = (HttpsURLConnection) obj.openConnection();
+	conn = (HttpURLConnection) obj.openConnection();
  
 	// Acts like a browser
 	conn.setUseCaches(false);
@@ -90,14 +96,15 @@ public class TMonSearch {
 		response.append(inputLine);
 	}
 	in.close();
-	// System.out.println(response.toString());
+	
+	System.out.println(response.toString());
  
   }
  
   private String GetPageContent(String url) throws Exception {
  
 	URL obj = new URL(url);
-	conn = (HttpsURLConnection) obj.openConnection();
+	conn = (HttpURLConnection) obj.openConnection();
  
 	// default is GET
 	conn.setRequestMethod("GET");
@@ -106,9 +113,10 @@ public class TMonSearch {
  
 	// act like a browser
 	conn.setRequestProperty("User-Agent", USER_AGENT);
-	conn.setRequestProperty("Accept",
-		"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-	conn.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+	conn.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+	conn.setRequestProperty("Accept-Language", "ko-KR,ko;q=0.8,en-US,en;q=0.5");
+	conn.setRequestProperty("Accept-Charset", "windows-949,utf-8;q=0.7,*;q=0.3");
+	conn.setRequestProperty("Connection", "keep-alive");
 	if (cookies != null) {
 		for (String cookie : this.cookies) {
 			conn.addRequestProperty("Cookie", cookie.split(";", 1)[0]);
@@ -135,27 +143,14 @@ public class TMonSearch {
  
   }
  
-  public String getFormParams(String html, String username, String password)
+  public String getFormParams(String html)
 		throws UnsupportedEncodingException {
  
-	System.out.println("Extracting form's data...");
- 
-	Document doc = Jsoup.parse(html);
- 
-	// Google form id
-	Element loginform = doc.getElementById("gaia_loginform");
-	Elements inputElements = loginform.getElementsByTag("input");
 	List<String> paramList = new ArrayList<String>();
-	for (Element inputElement : inputElements) {
-		String key = inputElement.attr("name");
-		String value = inputElement.attr("value");
- 
-		if (key.equals("Email"))
-			value = username;
-		else if (key.equals("Passwd"))
-			value = password;
-		paramList.add(key + "=" + URLEncoder.encode(value, "UTF-8"));
-	}
+	
+	String key = "srch";
+	String value = URLEncoder.encode("{\"keyword\":\"아디다스\",\"cat_srl\":0,\"sortby\":\"popular\",\"filter\":{\"delivery\":[],\"price\":[]},\"idx\":0,\"deal_srls\":[]}", "UTF-8");
+	paramList.add("srch" + "=" + value);
  
 	// build parameters list
 	StringBuilder result = new StringBuilder();
